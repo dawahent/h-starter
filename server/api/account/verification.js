@@ -83,12 +83,12 @@ const registerUser = function(regReqData, res){
           }
           //send out the code
 
-          // console.log(data.ops[0]._id);
+          console.log(data.ops[0]._id.toString());
           let temp = {
             to: regReqData.email,
             from: "no-reply@x-starter.com",
             subject: "Verify Your Registration on X-starter",
-            html: data.ops[0].id
+            html: data.ops[0]._id.toString()
           };
           sendmail(temp, (err,data) => {
             if(err){
