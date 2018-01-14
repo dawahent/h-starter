@@ -74,7 +74,7 @@ const registerUser = function(regReqData, res){
         }
         //data.ops[0] is what inserted
         //append _id to vericodedb, the vericodedb _id is the code
-        dbinsert("vericodes",{accountid: data.ops[0]._id},(err, data) => {
+        dbinsert("vericodes",{accountid: data.ops[0].id},(err, data) => {
           if(err){
             console.log(err)
             res.end(JSON.stringify({error: "fail on retriving vericode"}));
@@ -83,17 +83,18 @@ const registerUser = function(regReqData, res){
           }
           //send out the code
 
-          console.log(data.ops[0]._id);
+          // console.log(data.ops[0]._id);
           let temp = {
             to: regReqData.email,
             from: "no-reply@x-starter.com",
             subject: "Verify Your Registration on X-starter",
-            html: data.ops[0]._id
+            html: data.ops[0].id
           };
           sendmail(temp, (err,data) => {
             if(err){
               console.log(err);
               res.end(JSON.stringify({error: "fail to send verification code"}));
+              return;
             }
             res.end(JSON.stringify({error: null, email: regReqData.email}));
           })
