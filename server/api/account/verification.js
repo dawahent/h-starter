@@ -1,7 +1,19 @@
 const HashTable = require('hashtable');
 const {emailRegEx} = require('../regex/regexSet.js');
 const {dbfind} = require('../../mongo/config.js');
+const sendmail = require('sendmail')();
 var usrTable = new HashTable(); //session table
+
+/**
+* match sid and ip in usrTable
+* @param {string} sid the session id from cookie
+* @param {string} ip the x-forward from http request header
+* @return {boolean} if the sid and ip matches
+*/
+const matchSession(id, ip){
+  //see if id is in table
+  //if it is in, check ip
+}
 
 /**
 * Sign the user in with post data
@@ -10,6 +22,15 @@ var usrTable = new HashTable(); //session table
 */
 const signUserIn = function(signReqData, res){
   //connect to account db, see if usr name is there
+  dbfind("accounts",{email: signReqData.email}, (err,data) => {
+    if(err){
+      console.log(err)
+      res.end(JSON.stringify({error: "fail on query email"}));
+      return;
+    }
+
+
+  })
   //if the usr name is there, matching the psw (hashed)
   //if psw matched, repeating generate random number (32-nary, in str) until:
     //no matching key in usrTable
@@ -34,9 +55,12 @@ const registerUser = function(regReqData, res){
     if(data.length == 0 /* no email associated*/){
       //add the account to db, set verify to false, send the email
       if(err){
-        res.end({error: JSON.stringify(err)});
+        console.log(err)
+        res.end(JSON.stringify({error: "fail on query email"}));
         return;
       }
+
+
       dbinsert("accounts",{
         email: regReqData.email,
         psw: regReqData.psw,
@@ -52,23 +76,35 @@ const registerUser = function(regReqData, res){
         //append _id to vericodedb, the vericodedb _id is the code
         dbinsert("vericodes",{accountid: data.ops[0]._id},(err, data) => {
           if(err){
-            res.end({error: JSON.stringify(err)});
-            //dbremove
+            console.log(err)
+            res.end(JSON.stringify({error: "fail on retriving vericode"}));
+            //db remove
             return;
           }
           //send out the code
+
           console.log(data.ops[0]._id);
-          res.end();
+          let temp = {
+            to: regReqData.email,
+            from: "no-reply@x-starter.com",
+            subject: "Verify Your Registration on X-starter",
+            html: data.ops[0]._id
+          };
+          sendmail(temp, (err,data) => {
+            if(err){
+              console.log(err);
+              res.end(JSON.stringify({error: "fail to send verification code"}));
+            }
+            res.end(JSON.stringify({error: null, email: regReqData.email}));
+          })
+
         })
       })
     }else{
-      //find an account registered with such email
+      //found an account registered with such email
       res.end(JSON.stringify({error: "this email has already been registered"}));
     }
   })
-
-
-  //add code to chargement
 };
 
 /**

@@ -1,4 +1,4 @@
-#!/usr/bin/env nodejs
+#!/usr/bin/env node
 var http = require('http');
 var fs = require('fs');
 var server = http.createServer();
