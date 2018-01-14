@@ -10,7 +10,7 @@ var usrTable = new HashTable(); //session table
 * @param {string} ip the x-forward from http request header
 * @return {boolean} if the sid and ip matches
 */
-const matchSession(id, ip){
+const matchSession = function(id, ip){
   //see if id is in table
   //if it is in, check ip
 }
