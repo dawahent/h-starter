@@ -74,7 +74,7 @@ const registerUser = function(regReqData, res){
         }
         //data.ops[0] is what inserted
         //append _id to vericodedb, the vericodedb _id is the code
-        dbinsert("vericodes",{accountid: data.ops[0].id},(err, data) => {
+        dbinsert("vericodes",{accountid: data.ops[0]._id},(err, data) => {
           if(err){
             console.log(err)
             res.end(JSON.stringify({error: "fail on retriving vericode"}));
