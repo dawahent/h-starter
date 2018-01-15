@@ -8,6 +8,17 @@ server.on('request', function(req, res){
   // c = c + 1;
   // console.log(c.toString());
   // console.log(req.url)
+  if(req.methond == "post"){
+    let body = [];
+    req.on('data', function(chunk){
+      req.body.push(chunk);
+    })
+
+    req.on('end', function(){
+      res.end("yoyoyo, I get post: " + Buffer.concat(req.body).toString())
+    })
+    return;
+  }
   fs.readFile('./client/html/index.html', function(err, data){
     res.end(data);
   });

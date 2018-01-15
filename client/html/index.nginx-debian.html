@@ -20,6 +20,29 @@ working. Further configuration is required.</p>
 Commercial support is available at
 <a href="http://nginx.com/">nginx.com</a>.</p>
 
+<p>
+  <button onclick="trypost(event)">
+    HAHA
+  </button>
+</p>
+
 <p><em>Thank you for using nginx.</em></p>
+<script>
+  function myAjax(toSend,cb){
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = cb;
+    xhttp.open("POST", "/");
+    xhttp.send(JSON.stringify(toSend));
+  }
+
+  function trypost(event){
+    event.preventDefault();
+    myAjax({yo:"wowowowo"}, function(){
+      if (this.readyState == 4 && this.status == 200){
+        console.log(JSON.parse(this.response))
+      }
+    })
+  }
+</script>
 </body>
 </html>
