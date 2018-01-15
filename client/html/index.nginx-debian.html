@@ -39,7 +39,7 @@ Commercial support is available at
     event.preventDefault();
     myAjax({yo:"wowowowo"}, function(){
       if (this.readyState == 4 && this.status == 200){
-        console.log(JSON.parse(this.response))
+        console.log(this.response)
       }
     })
   }
