@@ -8,14 +8,16 @@ server.on('request', function(req, res){
   // c = c + 1;
   // console.log(c.toString());
   // console.log(req.url)
-  if(req.methond == "post"){
+  console.log(req.method === "POST");
+  if(req.method === "POST"){
+    console.log("yo");
     let body = [];
     req.on('data', function(chunk){
-      req.body.push(chunk);
+      body.push(chunk);
     })
 
     req.on('end', function(){
-      res.end("yoyoyo, I get post: " + Buffer.concat(req.body).toString())
+      res.end("yoyoyo, I get post: " + Buffer.concat(body).toString())
     })
     return;
   }
