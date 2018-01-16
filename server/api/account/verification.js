@@ -1,6 +1,6 @@
 const HashTable = require('hashtable');
 const {emailRegEx} = require('../regex/regexSet.js');
-const {dbfind} = require('../../mongo/config.js');
+require('../../mongo/config.js');
 const sendmail = require('sendmail')();
 var usrTable = new HashTable(); //session table
 
