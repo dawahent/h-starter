@@ -21,7 +21,7 @@ server.on('request', function(req, res){
     })
     return;
   }
-  fs.readFile('./client/html/index.html', function(err, data){
+  fs.readFile('./client/html/tutu.html', function(err, data){
     res.end(data);
   });
   // account.signUserIn(req,res);
