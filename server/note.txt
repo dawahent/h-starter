@@ -1,0 +1,6 @@
+1. Port roles:
+  80: nginx
+  3000: account sign-up, log-in, session-table-look-up, ownership/privilege-check
+  3001: pledge charging
+  3002: post/download/manage project/products
+  27017: mongodb

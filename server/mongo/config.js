@@ -34,10 +34,10 @@ dbinsert = function(coll, query, cb){
 * @param {string} coll the name of the collection
 * @return {object} the desired collection ready for find, insert, etc.
 */
-dbcol = function(coll){
+dbcoll = function(coll){
   return db.collection(coll);
 }
 
 module.exports = {
-  dbcol
+  dbcoll
 };

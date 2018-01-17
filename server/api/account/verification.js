@@ -1,6 +1,6 @@
 const HashTable = require('hashtable');
 const {emailRegEx} = require('../regex/regexSet.js');
-require('../../mongo/config.js');
+require('../../mongo/config.js');//import dbcoll
 const sendmail = require('sendmail')();
 var usrTable = new HashTable(); //session table
 
@@ -21,14 +21,30 @@ const matchSession = function(id, ip){
 * @param {object} res is the response object directed from server
 */
 const signUserIn = function(signReqData, res){
+  //see if signReqData is completed
+  if(signReqData.email || signReqData.psw){
+    res.end(JSON.stringify({error:"data not completed"}));
+    return;
+  }
+  //see if signinusrname is valid email log_format
+  if(!emailRegEx.test(regReqData.email)){
+    res.end(JSON.stringify({error:"email not fit into requirement"}));
+    return;
+  }
   //connect to account db, see if usr name is there
-  dbfind("accounts",{email: signReqData.email}, (err,data) => {
+  dbcoll(accounts).find({email: signReqData.email}).toArray((err,data) => {
     if(err){
       console.log(err)
       res.end(JSON.stringify({error: "fail on query email"}));
       return;
     }
+    if(data.length != 0){
 
+    }else{
+      //this email is not registered
+      res.end(JSON.stringify({error: "fail on query email"}));
+      return;
+    }
 
   })
   //if the usr name is there, matching the psw (hashed)
@@ -45,23 +61,26 @@ const signUserIn = function(signReqData, res){
 * @param {object} res is the response object directed from server
 */
 const registerUser = function(regReqData, res){
+  //see if regReqData comes with email and psw
+  if(!regReqData.email || !regReqData.psw){
+    res.end(JSON.stringify({error:"data not completed"}));
+    return;
+  }
   //see if email is good
   if(!emailRegEx.test(regReqData.email)){
     res.end(JSON.stringify({error:"email not fit into requirement"}));
     return;
   }
   //see if already an email associated with it
-  dbfind("accounts",{email: regReqData.email},(err,data) => {
+  dbcoll("accounts").find({email: regReqData.email}).toArray((err,data) => {
+    if(err){
+      console.log(err)
+      res.end(JSON.stringify({error: "fail on query email"}));
+      return;
+    }
     if(data.length == 0 /* no email associated*/){
       //add the account to db, set verify to false, send the email
-      if(err){
-        console.log(err)
-        res.end(JSON.stringify({error: "fail on query email"}));
-        return;
-      }
-
-
-      dbinsert("accounts",{
+      dbcoll("accounts").insert({
         email: regReqData.email,
         psw: regReqData.psw,
         date: new Date().getTime(),
@@ -74,7 +93,7 @@ const registerUser = function(regReqData, res){
         }
         //data.ops[0] is what inserted
         //append _id to vericodedb, the vericodedb _id is the code
-        dbinsert("vericodes",{accountid: data.ops[0]._id},(err, data) => {
+        dbcoll("vericodes").insert({accountid: data.ops[0]._id},(err, data) => {
           if(err){
             console.log(err)
             res.end(JSON.stringify({error: "fail on retriving vericode"}));

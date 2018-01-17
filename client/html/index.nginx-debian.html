@@ -31,7 +31,7 @@ Commercial support is available at
   function myAjax(toSend,cb){
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = cb;
-    xhttp.open("POST", "/trypost");
+    xhttp.open("POST", "/account");
     xhttp.send(JSON.stringify(toSend));
   }
 
