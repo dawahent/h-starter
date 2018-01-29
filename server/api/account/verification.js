@@ -4,10 +4,6 @@ require('../../mongo/config.js');//import dbcoll
 const sendmail = require('sendmail')();
 const ObjectID = require('mongodb').ObjectID;
 
-// //get current ip address
-// var os = require('os');
-// var ifaces = os.networkInterfaces();
-// var currIp = ifaces['en0'][1].address;
 
 //one very important thing, xxreqData is should already be type of object
 //before passing in as parameter. The function will not check it
@@ -18,7 +14,7 @@ const ObjectID = require('mongodb').ObjectID;
 * @param {string} ip the x-forward from http request header
 * @param {function} cb the callback to pass with usrid or null
 */
-const matchSession = function(sid, ip, cb){
+const matchSessionInVerification = function(sid, ip, cb){
   //see if sid is in table
   dbcoll("session").find({_id: ObjectID(sid)}).toArray((err, data) => {
     //added > 3 mon ago or not exisited or no matching
@@ -33,6 +29,8 @@ const matchSession = function(sid, ip, cb){
     //data is valid
     cb(data[0].usrid);
   });
+
+  
 }
 
 /**

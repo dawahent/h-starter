@@ -3,7 +3,9 @@ var http = require('http');
 var fs = require('fs');
 var server = http.createServer();
 //pre load the 404 page
-var preLoad404 = fs.readFileSync('./../../../client/html/custom_404.html');
+const {registerUser, signUserIn} = require("./project.js");
+//pre load the 404 page
+var preLoad404 = fs.readFileSync('./client/html/custom_404.html');
 
 server.on('request', function(req, res){
   if(req.method === "POST"){
@@ -26,5 +28,5 @@ server.on('request', function(req, res){
 });
 
 server.listen(3002, "0.0.0.0", function(){
-  console.log("listening...")
+  console.log("listening...");
 });
