@@ -2,6 +2,8 @@ require('./fakeHttp.js');
 account = require('../api/account/verification.js');
 project = require('../api/project/project.js');
 const fs = require('fs');
+//set middleware
+matchSession = account.matchSessionInVerification;
 
 randPicSet = [];
 for(i = 1; i < 29; i++){

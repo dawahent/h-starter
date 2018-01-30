@@ -3,6 +3,7 @@ const {emailRegEx} = require('../regex/regexSet.js');
 require('../../mongo/config.js');//import dbcoll
 const sendmail = require('sendmail')();
 const ObjectID = require('mongodb').ObjectID;
+var usrTable = new HashTable();
 
 
 //one very important thing, xxreqData is should already be type of object
@@ -16,22 +17,22 @@ const ObjectID = require('mongodb').ObjectID;
 */
 const matchSessionInVerification = function(sid, ip, cb){
   //see if sid is in table
-  dbcoll("session").find({_id: ObjectID(sid)}).toArray((err, data) => {
-    //added > 3 mon ago or not exisited or no matching
-    if(err || data.length == 0 || g3monago(data[0].addDate) || data[0].ip !== ip){
+  var query = usrTable.get(sid);
+  if(!query){
+    cb(null);
+  }else{
+    if(g3monago(query.addDate)){
+      usrTable.remove(sid);
       cb(null);
-
-      //> 3 mon ago, remove it
-      if(g3monago(data[0].addDate))
-        dbcoll("session").deleteOne({_id : ObjectID(sid)}, (err,dt) => {});
-      return;
+    }else{
+      if(query.ip !== ip){
+        cb(null);
+      }else{
+        cb(query.usrid);
+      }
     }
-    //data is valid
-    cb(data[0].usrid);
-  });
-
-  
-}
+  }
+};
 
 /**
 * see if the specified time is more than 3 months from now
@@ -73,25 +74,20 @@ const signUserIn = function(signReqData, res){
           res.end(JSON.stringify({error: "account not verified"}));
           return;
         }
-        let temp = data[0].verifiedDrawer;
-        //add usrid, ip, addDate to session db
-        //add the random number to usrTable as key, noting IP, email, date
-        //res ends with no error and important usr info for frontend
-        dbcoll("session").insert({
+        var tempRand = (Math.random() * 1e18).toString(36);
+        while(usrTable.get(tempRand)){
+          tempRand = (Math.random() * 1e18).toString(36);
+        }
+        tempRand.put(tempRand, {
           ip: signReqData.ip,
           usrid: data[0]._id.toString(),
           addDate: new Date().getTime()
-        },(err,data) => {
-          if(err){
-            res.end(JSON.stringify({error: "fail to insert into session db"}));
-            return;
-          }
-          res.end(JSON.stringify({
-            error: null,
-            sid: data.ops[0]._id.toString(),
-            ifDrawer: temp
-          }))
         });
+        res.end(JSON.stringify({
+          error: null,
+          sid: data.ops[0]._id.toString(),
+          ifDrawer: data[0].verifiedDrawer
+        }));
         return;
       }else{
         //password matching failed
@@ -286,5 +282,5 @@ module.exports = {
   registerUser,
   userResp,
   verifyCust,
-  matchSession
+  matchSessionInVerification
 };
