@@ -60,43 +60,37 @@ const signUserIn = function(signReqData, res){
     return;
   }
   //connect to account db, see if usr name is there
-  dbcoll("accounts").find({email: signReqData.email}).toArray((err,data) => {
+  dbcoll("accounts").find({email: signReqData.email, psw: signReqData.psw}).toArray((err,data) => {
     if(err){
       console.log(err)
       res.end(JSON.stringify({error: "fail on query email"}));
       return;
     }
     if(data.length != 0){
-      //if the usr name is there, matching the psw (hashed)
-      if(signReqData.psw === data[0].psw){
-        //if psw matched, see if it is verifiedCust
-        if(!data[0].verifiedCust){
-          res.end(JSON.stringify({error: "account not verified"}));
-          return;
-        }
-        var tempRand = (Math.random() * 1e18).toString(36);
-        while(usrTable.get(tempRand)){
-          tempRand = (Math.random() * 1e18).toString(36);
-        }
-        usrTable.put(tempRand, {
-          ip: signReqData.ip,
-          usrid: data[0]._id.toString(),
-          addDate: new Date().getTime()
-        });
-        res.end(JSON.stringify({
-          error: null,
-          sid: tempRand,
-          ifDrawer: data[0].verifiedDrawer
-        }));
-        return;
-      }else{
-        //password matching failed
-        res.end(JSON.stringify({error: "email or password not matched"}));
+      //if the usr name and psw matches, see if it is verifiedCust
+      if(!data[0].verifiedCust){
+        res.end(JSON.stringify({error: "account not verified"}));
         return;
       }
+      var tempRand = (Math.random() * 1e18).toString(36);
+      while(usrTable.get(tempRand)){
+        tempRand = (Math.random() * 1e18).toString(36);
+      }
+      usrTable.put(tempRand, {
+        ip: signReqData.ip,
+        usrid: data[0]._id.toString(),
+        addDate: new Date().getTime()
+      });
+      res.end(JSON.stringify({
+        error: null,
+        sid: tempRand,
+        ifDrawer: data[0].verifiedDrawer
+      }));
+      return;
+
     }else{
-      //this email is not registered
-      res.end(JSON.stringify({error: "fail on query email"}));
+      //this email is not registered or password is wrong
+      res.end(JSON.stringify({error: "account not exist or password does not match"}));
       return;
     }
 
