@@ -6,7 +6,7 @@ const ObjectID = require('mongodb').ObjectID;
 var usrTable = new HashTable();
 
 
-//one very important thing, xxreqData is should already be type of object
+//one very important thing, xxreqData should already be type of object
 //before passing in as parameter. The function will not check it
 
 /**
@@ -78,14 +78,14 @@ const signUserIn = function(signReqData, res){
         while(usrTable.get(tempRand)){
           tempRand = (Math.random() * 1e18).toString(36);
         }
-        tempRand.put(tempRand, {
+        usrTable.put(tempRand, {
           ip: signReqData.ip,
           usrid: data[0]._id.toString(),
           addDate: new Date().getTime()
         });
         res.end(JSON.stringify({
           error: null,
-          sid: data.ops[0]._id.toString(),
+          sid: tempRand,
           ifDrawer: data[0].verifiedDrawer
         }));
         return;
@@ -260,17 +260,17 @@ const userResp = function(reqData, res){
 const verifyCust = function(code, res){
   dbcoll("vericodes").find({_id: ObjectID(code)}).toArray((err,data) => {
     if(data.length == 0){
-      res.end("Verification Code not available");
+      res.end(JSON.stringify({error:"Verification Code not available"}));
       return;
     }
     dbcoll("accounts").update(
-      {_id: ObjectID(data[0].usrid)}, {$set : {verifiedCust: true}},
+      {_id: ObjectID(data[0].accountid)}, {$set : {verifiedCust: true}},
       (err,data) => {
         if(err){
-          res.end("error in update usr status");
+          res.end(JSON.stringify({error:"cannot modify status of the user"}));
           return;
         }
-        res.end("successfully verify user");
+        res.end(JSON.stringify({error:null}));
         return;
       }
     )
